@@ -47,6 +47,8 @@ class PSC:
 conn = connect_db()
 execute_query(conn, 'sql/create_psc.sql')
 
+def convert_datetime(obj):
+        return datetime.fromisoformat(obj.replace('Z', '+00:00'))
 
 
 
@@ -88,7 +90,7 @@ def create_object(obj: dict) -> PSC:
                 Month=obj.get('data', {} ).get('date_of_birth', {}).get('month')
             ),
             Nationality=obj.get('data', {}).get('nationality'),
-            CeasedOn=None if obj.get('data', {}).get('ceased_on', '') == '' else datetime.strptime(obj.get('data', {}).get('ceased_on', ''), '%Y-%m-%d'),
+            CeasedOn=None if obj.get('data', {}).get('ceased_on', '') == '' else convert_datetime(obj.get('data', {}).get('ceased_on', '')),
             CountryOfResidence=obj.get('data', {}).get('country_of_residence'),
             Links=json.dumps(obj.get('data', {}).get('links', {})),  # Default to empty dict if 'links' is missing
             NaturesControl=obj.get('data', {}).get('natures_of_control', []),  # Default to empty list if 'natures_of_control' is missing
@@ -96,21 +98,16 @@ def create_object(obj: dict) -> PSC:
         )
 
 
-print('Running PSC job')
 
+bulk = []
 with open('psc.txt', 'r') as file:
-    textFile = file.readlines()
-    bulk = []
-    for index, line in enumerate(textFile):
-        if index > 10:
-            break
+    for index, line in enumerate(file):
         obj = json.loads(line)
-    
+        print(f"creating object for {index}")
         psc = create_object(obj)
         bulk.append(psc)
-        
-    
-        if len(bulk) >= 10:
+          
+        if len(bulk) >= 500:
             data = [(
                  psc.CompanyNumber, 
                  psc.Name.FullName,
@@ -147,15 +144,53 @@ with open('psc.txt', 'r') as file:
             ) for psc in bulk
             ]  
       
-            for attribute, value in vars(psc).items():
-                print(f"{attribute}: {type(value)}")
-
-
-    
+     
     
             execute_bulk_insert(conn, 'sql/insert_psc.sql', data)
             bulk = []
             print('Loading batch')
 
 
-   
+ 
+if bulk:
+    data = [(
+            psc.CompanyNumber, 
+            psc.Name.FullName,
+            psc.Kind,
+            psc.Etag,
+            psc.Name.Firstname,
+            psc.Name.Middlename,
+            psc.Name.Surname,
+            psc.Name.Title,
+            psc.DateOfBirth.Year,
+            psc.DateOfBirth.Month,
+            psc.Nationality,
+            psc.CountryOfResidence,
+            psc.Identification.CountryRegistered,
+            psc.Identification.LegalAuthority,
+            psc.Identification.LegalForm,
+            psc.Identification.PlaceRegistered,
+            psc.Identification.RegistrationNumber,
+            psc.NotifiedOn,
+            psc.CeasedOn,
+            psc.Links,
+            psc.NaturesControl,
+            psc.Address.FullAddress,
+            psc.Address.CareOf,
+            psc.Address.PostBox,
+            psc.Address.AddressLine1,
+            psc.Address.AddressLine2,
+            psc.Address.Premises,
+            psc.Address.PostTown,
+            psc.Address.County,
+            psc.Address.Country,
+            psc.Address.PostCode
+
+    ) for psc in bulk
+    ]
+    execute_bulk_insert(conn, 'sql/insert_psc.sql', data)
+    print('Loading final batch')
+
+
+
+        
