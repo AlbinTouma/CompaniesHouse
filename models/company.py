@@ -1,24 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-    
-@dataclass
-class Address:
-    CareOf:  str
-    PostBox:   str
-    AddressLine1: str
-    AddressLine2: str 
-    PostTown: str
-    County: str 
-    Country: str
-    PostCode: str
-    Premises: str
-    FullAddress: str = field(init=False)  # Excluded from __init__
-    
-    def __post_init__(self):
-        # Construct full address with non-empty fields
-        parts = [self.AddressLine1, self.AddressLine2, self.PostTown, self.County, self.PostCode, self.Country]
-        self.FullAddress = ", ".join(filter(None, parts))  # Remove empty values
-
+ from shared_class import Address   
+ 
 
 
 @dataclass

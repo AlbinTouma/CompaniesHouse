@@ -1,3 +1,5 @@
 secretdb.py
 ukch.csv
 psc.txt
+.env/
+data.db
