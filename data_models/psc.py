@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from shared_class import Address, Identification, DateOfBirth
+from data_models.util import Address, Identification, DateOfBirth
 
 @dataclass
 class PSC:

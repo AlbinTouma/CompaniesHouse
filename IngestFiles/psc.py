@@ -2,9 +2,9 @@ import json
 from dataclasses import dataclass, field, asdict
 import psycopg2
 from datetime import datetime
-from models.company import *
+from data_models.company import *
 from db.sqlite_db import *
-from models import PSC, Identification, Name, DateOfBirth
+from data_models import PSC, Identification, Name, DateOfBirth
 
 conn = connect_db()
 execute_query(conn, 'sql/create_psc.sql')

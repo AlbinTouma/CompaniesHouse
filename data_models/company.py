@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
- from shared_class import Address   
- 
-
+from data_models.util import Address
 
 @dataclass
 class Company:

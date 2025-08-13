@@ -29,7 +29,6 @@ class SqliteClass:
             cur = self.conn.cursor()
             cur.execute(query)
             self.conn.commit()
-            self.conn.close()
         except Exception as e:
             print(e)
 
@@ -41,6 +40,12 @@ class SqliteClass:
             self.conn.commit()
         except Exception as e:
             print(e)
+
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()
+            self.conn = None
+            print('Closed connection to database')
             
 
 
