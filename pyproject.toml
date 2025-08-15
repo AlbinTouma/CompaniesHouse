@@ -8,6 +8,7 @@ authors = ["Albin Touma <albin.touma@gmail.com>"]
 python = "^3.10"
 pandas = "^2.3.1"
 psycopg2 = "^2.9.10"
+tqdm = "^4.67.1"
 
 [tool.poetry.dev-dependencies]
 

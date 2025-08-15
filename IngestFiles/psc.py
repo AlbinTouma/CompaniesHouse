@@ -2,14 +2,13 @@ import json
 from dataclasses import dataclass, field, asdict
 import psycopg2
 from datetime import datetime
-from data_models.company import *
 from db.sqlite_db import *
-from data_models import PSC, Identification, Name, DateOfBirth
+from data_models import Address, PSC, Identification, Name, DateOfBirth
+from tqdm import tqdm
 
-conn = connect_db()
-execute_query(conn, 'sql/create_psc.sql')
+class PscIngestor:
 
-class IngestPSC:
+    @staticmethod
     def convert_datetime(obj):
         return datetime.fromisoformat(obj.replace('Z', '+00:00'))
 
@@ -58,17 +57,17 @@ class IngestPSC:
                 NotifiedOn=None if obj.get('data', {}).get('notified_on', '') == '' else datetime.strptime(obj.get('data', {}).get('notified_on', ''), '%Y-%m-%d')
             )
 
-    def ingest_psc(self)
+    def ingest_psc(self, database):
         bulk = []
         with open('psc.txt', 'r') as file:
-            for index, line in enumerate(file):
+            total_rows = sum(1 for _ in file) - 1  # minus header
+            file.seek(0)  # reset to start
+            for index, line in enumerate(tqdm(file, total=total_rows, desc='Ingesting PSCs')):
                 obj = json.loads(line)
-                print(f"creating object for {index}")
                 psc = self.create_object(obj)
-                bulk.append(psc)
-                
-                if len(bulk) >= 500:
-                    data = [(
+                bulk.append(psc)    
+
+                data = [(
                         psc.CompanyNumber, 
                         psc.Name.FullName,
                         psc.Kind,
@@ -88,8 +87,8 @@ class IngestPSC:
                         psc.Identification.RegistrationNumber,
                         psc.NotifiedOn,
                         psc.CeasedOn,
-                        psc.Links,
-                        psc.NaturesControl,
+                        json.dumps(psc.Links),
+                        json.dumps(psc.NaturesControl),
                         psc.Address.FullAddress,
                         psc.Address.CareOf,
                         psc.Address.PostBox,
@@ -103,12 +102,13 @@ class IngestPSC:
                     
                     ) for psc in bulk
                     ]  
-            
-            
-            
-                    execute_bulk_insert(conn, 'sql/insert_psc.sql', data)
-                    bulk = []
-                    print('Loading batch')
+                
+                if len(bulk) >= 10:
+                    try:
+                        database.execute_bulk_insert('insert_psc.sql', data)
+                        bulk = []
+                    except Exception as e:
+                        print(e)
 
 
         
@@ -133,8 +133,8 @@ class IngestPSC:
                     psc.Identification.RegistrationNumber,
                     psc.NotifiedOn,
                     psc.CeasedOn,
-                    psc.Links,
-                    psc.NaturesControl,
+                    json.dumps(psc.Links),
+                    json.dumps(psc.NaturesControl),
                     psc.Address.FullAddress,
                     psc.Address.CareOf,
                     psc.Address.PostBox,
@@ -148,7 +148,7 @@ class IngestPSC:
 
             ) for psc in bulk
             ]
-            execute_bulk_insert(conn, 'sql/insert_psc.sql', data)
+            database.execute_bulk_insert('insert_psc.sql', data)
             print('Loading final batch')
 
 

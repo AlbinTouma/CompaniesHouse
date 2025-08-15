@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 from dataclasses import asdict
 from data_models import Address, Company
+from tqdm import tqdm
 
 #CompanyName, CompanyNumber,
 # RegAddress.CareOf,RegAddress.POBox,RegAddress.AddressLine1, RegAddress.AddressLine2,RegAddress.PostTown,RegAddress.County,RegAddress.Country,RegAddress.PostCode,
@@ -39,17 +40,15 @@ class CompanyIngestor:
  
     def ingest_companies(self, database):
         with open('companies.csv', 'r') as file:
+            total_rows = sum(1 for _ in file) - 1  # minus header
+            file.seek(0)  # reset to start
             csvReader = csv.reader(file)
-
+            next(csvReader)  # skip header
+          
             company_objects = []
-            for index, item in enumerate(csvReader):
-                if index == 0:
-                    continue
 
-                if index > 205:
-                    print('test')
-                    break
-
+            for _, item in enumerate(tqdm(csvReader, total=total_rows, desc="Ingesting companies")):
+              
                 company = Company(
                     CompanyName=item[0],
                     CompanyNumber=item[1],
@@ -76,7 +75,6 @@ class CompanyIngestor:
 
 
                 if len(companies) >= 100:
-                    print(len(companies))
                     database.execute_bulk_insert('insert_companies.sql', companies)
                     company_objects = []
         
