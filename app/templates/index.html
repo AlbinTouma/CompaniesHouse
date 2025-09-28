@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+One of the most difficult aspects of coporate investigations is connecting who works where and who owns what.
+KYBO helps investigators by creating a network visualisation of data.
+
+<h1>Find Owners</h1>
+<p>Search Owners.</p>
+<form action="/search/">
+    <input 
+        type='search'
+        method="get" 
+        id="name-search" 
+        name='name'
+        placeholder='Search company'
+        />
+
+
+</form>
+
+<h1>{{name}}</h1>
+
+<section class="result_section"></section>
+   <script>
+    var resultArray  = {{data | tojson}}
+    console.log(resultArray)
+    let resultsDiv = document.querySelector('.result_section')
+    let html = "<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>";
+    
+  
+    const parseResult = (data) => {
+      for (const [key, value] of Object.entries(data)) {
+        html += `<tr><td>${key}</td><td>${value}</td></tr>`;
+      }
+
+    };
+    resultArray.forEach((d) => parseResult(d));
+    html += "</tbody></table>";
+    resultsDiv.innerHTML = html;
+      
+</script>
+
+<div>
+
+
+</body>
+</html>

@@ -9,29 +9,31 @@ import csv
 from dataclasses import asdict
 import json
 import sqlite3
+from pathlib import Path
+import logging
 
 
 class SqliteClass:
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
     def __init__(self, db_name='data.db'):
-        self.conn = None
         self.db_name = db_name
-
-    def init_sqlite(self):
-        self.conn = sqlite3.connect(self.db_name)
-
+        self.conn =  sqlite3.connect(f'{SqliteClass.BASE_DIR}/{db_name}')
+        self.conn.row_factory = sqlite3.Row
+        self.cursor = self.conn.cursor()
+                
     def load_query(self, filename):
-        with open(f'sql/{filename}', 'r') as file:
+        with open(f'{SqliteClass.BASE_DIR}/sql/{filename}', 'r') as file:
             return file.read()
         
-    def execute_query(self, filename, params=None):
-        try:
-            query = self.load_query(filename)
-            cur = self.conn.cursor()
-            cur.execute(query)
-            self.conn.commit()
-        except Exception as e:
-            print(e)
-
+    def execute_query(self, filename, params={}):
+        print(params)
+        query = self.load_query(filename)
+        self.cursor.execute(query, params)
+        self.conn.commit()
+        rows = self.cursor.fetchall()
+        return [dict(row) for row in rows]
+    
     def execute_bulk_insert(self, filename, data: list):
         try:
             query = self.load_query(filename)
@@ -47,6 +49,3 @@ class SqliteClass:
             self.conn = None
             print('Closed connection to database')
             
-
-
-
