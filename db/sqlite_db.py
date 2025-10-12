@@ -17,17 +17,19 @@ class SqliteClass:
     BASE_DIR = Path(__file__).resolve().parent.parent
 
     def __init__(self, db_name='data.db'):
+
+        print(SqliteClass.BASE_DIR)
         self.db_name = db_name
         self.conn =  sqlite3.connect(f'{SqliteClass.BASE_DIR}/{db_name}')
         self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
                 
     def load_query(self, filename):
+        print(SqliteClass.BASE_DIR)
         with open(f'{SqliteClass.BASE_DIR}/sql/{filename}', 'r') as file:
             return file.read()
         
     def execute_query(self, filename, params={}):
-        print(params)
         query = self.load_query(filename)
         self.cursor.execute(query, params)
         self.conn.commit()
