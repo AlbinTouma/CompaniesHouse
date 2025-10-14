@@ -29,7 +29,7 @@ class SqliteClass:
         with open(f'{SqliteClass.BASE_DIR}/sql/{filename}', 'r') as file:
             return file.read()
         
-    def execute_query(self, filename, params={}):
+    def execute_query(self, filename, params={}) -> list[dict]:
         query = self.load_query(filename)
         self.cursor.execute(query, params)
         self.conn.commit()

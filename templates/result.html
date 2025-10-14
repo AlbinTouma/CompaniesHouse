@@ -1,13 +1,4 @@
-<ul>
-    {% if companies and companies | length >0 %}
-
-        {% for company in companies %}
-
-        <li>{{company.company_number}}</li>
-        <li>{{company.company_name}}</li>
-        {% endfor %}
-    {% else %}
-        <h2>No data</h2>
-
-    {% endif %}
-</ul>
+<section>
+    <div id="ownership-data" type="application/json" data-bods='{{bods_json | tojson | safe}}'/></div>
+    <div id="graph-container"> </div>
+</section>
