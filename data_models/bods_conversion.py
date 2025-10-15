@@ -1,9 +1,44 @@
 import json
 import uuid
 from datetime import date
+from pydantic import BaseModel
 
 # Latest standard is 4:0
 # https://standard.openownership.org/en/latest/standard/reference.html#record-details-entity
+
+
+#Reason is a codelist
+class unSpecifiedPersonDetails(BaseModel):
+    reason: str
+    description: str
+
+
+class Names(BaseModel):
+    type: str | None = "legal"
+    fullName: str
+    givenName: str | None //same as first name
+    familyName: str | None
+
+
+class Country(BaseModel):
+    name: str | None = "United Kingdom"
+    code: str | None = "GB"
+
+
+class Addresses(BaseModel):
+    type: str | None = "service"
+    address: str | None
+    postCode: str | None
+    country: Country
+
+
+class RecordPerson(BaseModel):
+    isComponent: bool | None = false
+    personType: str | None  = "knownPerson"
+    unSpecifiedPersonDetails: unSpecifiedPersonDetails | None
+    names: Names
+    birthDate: str  //YYYY-MM-DD
+    addresses: Addresses
 
 
 def record_details_person(person):
@@ -26,10 +61,53 @@ def record_details_person(person):
             "deathDate": dob, //YYYY, YYY-MM, YYYY-MM-DD
             "taxResidencies": [], //Array of address objects (see placeOfBirth field)
             "addresses": [] //One or more addresses
-            # "politicalExposure": {},
-            # politicalExposure/status: isPep/isNotPep
-            # politicalExposure/details: array[PEP Status Details ie one or more descriptions
         }
+
+
+
+def record_details_entity(company):
+    """
+        entityType: The form of the entity described in the statement"
+    """
+
+    return {
+            "isComponent": false, //whether person is component of indirect relationship
+            "entityType": company.type,
+            "entityType/type": "registeredEntity", //different codes, need mapping in future
+            "entityType/subtype": "other", //Type must align with entity type!!
+            "entityType/details": "", //Provide local name for type of entity ie Ministerium for dep
+            "unspecifiedEntityDetails": "", //explanation of why entity anonymous
+            "name": company.full_name, //string
+            "alternateNames": [], //aray of strings, names
+            "jurisdiction": {
+                "name": company.country,
+                "code": "gb", //2 letter ISO code for jurisdiction
+                },
+            "identifiers": {
+                "id": company.company_number,
+                "scheme": "GB-COH", //for person it is PASSPORT, TAXID, IDCARD
+                "schemeName":, "UK Companies House",
+                "uri": "https://www.ukch.com/",
+                },
+            "foundingDate": "", //YYYY-MM-DD format. 
+            "dissolutionDate": "", //YYY-MM-DD
+            "addresses": {
+                "type": "registered", // code function of address
+                "postCode": company.postCode,
+                "country": company.country,
+                }, 
+            "uri": "",
+            }
+
+def record_details_relationship(entity, component_records: list, owner_id, interests: list[interests]){
+     return {
+            "isComponent": false, //whether person is component of indirect relationship
+            "componentRecords": component_records,
+            "subject": recordId, //recordId for interested party in the relationship ie person / company number
+            "interestedParty": owner_id , //id of the owner
+            "interests": interests, //list[Interest dicts]
+        } 
+
 
 
 
@@ -54,7 +132,7 @@ def create_statement(company_number, record_type, record_details: dict):
             "annotations": ["Created by KYBO"],
             "publicationDetails": {
                 "publicationDate": str(date.today()),
-                "bodsVersion": "4.0",
+                "bodsVersion": "0.4",
                 "license": "",
                 "publisher": {"name": "Know Your Business Owners", url: ""},
                 }
