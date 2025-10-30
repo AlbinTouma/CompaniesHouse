@@ -1,76 +1,84 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from data_models.util import Address
+from sqlmodel import Field, Relationship, Session, SQLModel
+from typing import Optional, List
 
-@dataclass
-class Company:
-    CompanyName: str
-    CompanyNumber: str
-    CompanyCategory: str
-    CompanyStatus: str
-    CountryOfOrigin: str 
-    DissolutionDate: str
-    IncorporationDate: str
-    Address: Address
 
-    def __post_init__(self):
-        self.DissolutionDate = (
-            datetime.strptime(self.DissolutionDate, "%d/%m/%Y") if self.DissolutionDate else None
+class Accounts(SQLModel, table=True):
+    id: int | None  = Field(default=None, primary_key=True)
+    account_ref_day: str | None
+    account_ref_month: str | None
+    next_due_date: str | None
+    last_made_update: str | None
+    account_category: str | None
+    returns_next_due_date: str | None
+    returns_last_madeup_date: str | None
+    company_id: str | None = Field(default=None, foreign_key="company.id")
+    company: Optional["Company"] = Relationship(back_populates="accounts")
 
-        )
-        self.IncorporationDate = (
-            datetime.strptime(self.IncorporationDate, "%d/%m/%Y") if self.IncorporationDate else None
-        )
-
-@dataclass
-class Accounts:
-    AccountRefDay: str 
-    AccountRefMonth: str
-    NextDueDate: str
-    LastMadeUpDate: str 
-    AccountCategory: str
-    ReturnsNextDueDate: str
-    ReturnsLastMadeUpDate: str
-
-@dataclass
-class Mortgages:
-    NumMortCharges: int
-    NumMortOutstanding: int 
-    NumMortPartSatisfied: int
-    NumMortSatisfied: int 
+class Mortgages(SQLModel, table=True):
+    id: int | None  = Field(default=None, primary_key=True)
+    num_mort_charges: int | None
+    num_mort_outstanding: int | None
+    num_mort_part_satisfied: int | None
+    num_mort_satisfied: int | None
+    company_id: str | None = Field(default=None, foreign_key="company.id") 
+    company: Optional["Company"] = Relationship(back_populates="mortgages")
    
-@dataclass
-class Industry:
-    SicText_1: str
-    SicText_2: str
-    SicText_3: str
-    SicText_4: str
-    NumGenPartners: str
-    NumLimPartners: str
-    URI: str
+class Industry(SQLModel, table=True):
+    id: int | None  = Field(default=None, primary_key=True)
+    company_id: str | None = Field(default=None, foreign_key="company.id")
+    sic_text_1: str | None
+    sic_text_2: str | None
+    sic_text_3: str | None
+    sic_text_4: str | None
+    num_gen_partners: str | None
+    num_lim_partners: str | None
+    uri: str | None
+    company: Optional["Company"]  = Relationship(back_populates="industry")
 
-@dataclass
-class PreviousName:
-    PreviousName_1CONDATE: str
-    PreviousName_1CompanyName: str
-    PreviousName_2CONDATE: str
-    PreviousName_2CompanyName: str
-    PreviousName_3CONDATE: str
-    PreviousName_3CompanyName: str
-    PreviousName_4CONDATE: str
-    PreviousName_4CompanyName: str
-    PreviousName_5CONDATE: str
-    PreviousName_5CompanyName: str
-    PreviousName_6CONDATE: str
-    PreviousName_6CompanyName: str
-    PreviousName_7CONDATE: str
-    PreviousName_7CompanyName: str
-    PreviousName_8CONDATE: str
-    PreviousName_8CompanyName: str
-    PreviousName_9CONDATE: str
-    PreviousName_9CompanyName: str
-    PreviousName_10CONDATE: str
-    PreviousName_10CompanyName: str
-    ConfStmtNextDueDate: str
-    ConfStmtLastMadeUpDate: str
+class PreviousName(SQLModel, table=True):
+    id: int | None  = Field(default=None, primary_key=True)
+    PreviousName_1CONDATE: str | None
+    PreviousName_1CompanyName: str | None
+    PreviousName_2CONDATE: str | None
+    PreviousName_2CompanyName: str | None
+    PreviousName_3CONDATE: str | None
+    PreviousName_3CompanyName: str | None
+    PreviousName_4CONDATE: str | None
+    PreviousName_4CompanyName: str | None
+    PreviousName_5CONDATE: str | None
+    PreviousName_5CompanyName: str | None
+    PreviousName_6CONDATE: str | None
+    PreviousName_6CompanyName: str | None
+    PreviousName_7CONDATE: str | None
+    PreviousName_7CompanyName: str | None
+    PreviousName_8CONDATE: str | None
+    PreviousName_8CompanyName: str | None
+    PreviousName_9CONDATE: str | None
+    PreviousName_9CompanyName: str | None
+    PreviousName_10CONDATE: str | None
+    PreviousName_10CompanyName: str | None
+    ConfStmtNextDueDate: str | None
+    ConfStmtLastMadeUpDate: str | None
+    company_id: str | None = Field(default=None, foreign_key="company.id")
+    company: Optional["Company"]  = Relationship(back_populates="previous_names")
+
+class Company(SQLModel, Address, table=True):
+    id: str = Field(primary_key=True, index=True)
+    name: str
+    category: str | None
+    status: str | None
+    country_origin: str | None
+    dissolution_date: str | None
+    incorporation_date: str | None
+    accounts: List["Accounts"] = Relationship(back_populates="company")
+    mortgages: List["Mortgages"] =  Relationship(back_populates="company")
+    previous_names: List["PreviousName"] = Relationship(back_populates="company")
+    industry: Optional[Industry] = Relationship(back_populates="company")
+    full_address: Optional[str] = Field(default=None)
+
+    def compute_full_address(self):
+        self.full_address = super().build_full_address()
 

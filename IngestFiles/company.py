@@ -3,7 +3,7 @@ import csv
 from dataclasses import asdict
 from data_models import Address, Company
 from tqdm import tqdm
-
+from sqlmodel import Session, select
 #CompanyName, CompanyNumber,
 # RegAddress.CareOf,RegAddress.POBox,RegAddress.AddressLine1, RegAddress.AddressLine2,RegAddress.PostTown,RegAddress.County,RegAddress.Country,RegAddress.PostCode,
 # CompanyCategory,CompanyStatus,CountryOfOrigin,DissolutionDate,
@@ -14,33 +14,13 @@ from tqdm import tqdm
 
 
 class CompanyIngestor:
-    def order_company_list(self, companies):
-        data =  [
-        (
-            company.CompanyNumber,
-            company.CompanyName,
-            company.CompanyCategory, 
-            company.CompanyStatus,
-            company.DissolutionDate, 
-            company.IncorporationDate, 
-            company.Address.FullAddress, 
-            company.Address.CareOf, 
-            company.Address.PostBox,
-            company.Address.AddressLine1,
-            company.Address.AddressLine2, 
-            company.Address.PostTown, 
-            company.Address.County,
-            company.Address.Country, 
-            company.Address.PostCode
-        )   
-        for company in companies
-        ]
-        return data
-        
- 
-    def ingest_companies(self, database):
+
+    def __init__(self, engine):
+        self.engine  = engine
+
+    def ingest_companies(self):
         with open('companies.csv', 'r') as file:
-            total_rows = sum(1 for _ in file) - 1  # minus header
+            total_rows = sum(1 for _ in file) - 1  # skip header
             file.seek(0)  # reset to start
             csvReader = csv.reader(file)
             next(csvReader)  # skip header
@@ -49,67 +29,45 @@ class CompanyIngestor:
 
             for _, item in enumerate(tqdm(csvReader, total=total_rows, desc="Ingesting companies")):
               
+                    
+                
                 company = Company(
-                    CompanyName=item[0],
-                    CompanyNumber=item[1],
-                    CompanyCategory=item[10],
-                    CompanyStatus=item[11],
-                    CountryOfOrigin=item[12],
-                    DissolutionDate=item[13],
-                    IncorporationDate=item[14],
-                    Address=Address(
-                        AddressLine1=item[4],
-                        AddressLine2=item[5],
-                        PostTown=item[6],
-                        PostCode=item[9],
-                        PostBox=item[3],
-                        CareOf=item[2],
-                        Country=item[8],
-                        County=item[7],
-                        Premises='',
+                    name=item[0],
+                    id=item[1],
+                    category=item[10],
+                    company_status=item[11],
+                    country_of_origin=item[12],
+                    dissolution_date=item[13],
+                    incorporation_date=item[14],
+                    address_line_1=item[4],
+                    address_line_2=item[5],
+                    post_town=item[6],
+                    post_code=item[9],
+                    post_box=item[3],
+                    care_of=item[2],
+                    country=item[8],
+                    county=item[7],
+                    premises=None
+
                     )
-                )
+                
+                company.compute_full_address()
+                
+                
                 company_objects.append(company)
 
-                companies = self.order_company_list(company_objects)
-
-
-                if len(companies) >= 100:
-                    database.execute_bulk_insert('insert_companies.sql', companies)
+                if len(company_objects) >= 100:
+                    #database.execute_bulk_insert('insert_companies.sql', companies)
+                    self.bulk_insert(company_objects)
                     company_objects = []
+            
+            if company_objects:
+                self.bulk_insert(company_objects)
+
+    
+    def bulk_insert(self, companies):
+        with Session(self.engine) as session:
+            session.add_all(companies)
+            session.commit()
         
         print('JOB DONE')
-
-
-
-"""
-with conn.cursor() as cur:
-        data = [
-        (
-            company.CompanyNumber,
-            company.CompanyName,
-            company.CompanyCategory, 
-            company.CompanyStatus,
-            company.DissolutionDate, 
-            company.IncorporationDate, 
-            company.Address.FullAddress, 
-            company.Address.CareOf, 
-            company.Address.PostBox,
-            company.Address.AddressLine1,
-            company.Address.AddressLine2, 
-            company.Address.PostTown, 
-            company.Address.County,
-            company.Address.Country, 
-            company.Address.PostCode
-        )   
-        for company in companies
-        ]
-        try:
-            cur.executemany(query, data)
-            conn.commit()
-        except Exception as e:
-            print(f"Failed to insert company into table: {e}")
-            quit()
-    
-
-"""

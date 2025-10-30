@@ -13,6 +13,7 @@ fastapi = {extras = ["standard"], version = "^0.117.1"}
 Jinja2 = "^3.1.6"
 fastapi-cli = "^0.0.10"
 python-multipart = "^0.0.20"
+sqlmodel = "^0.0.27"
 
 [tool.poetry.dev-dependencies]
 

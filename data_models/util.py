@@ -1,4 +1,6 @@
 from dataclasses import dataclass, field
+from sqlmodel import Field, Relationship, Session, SQLModel
+from typing import Optional
 
 
 
@@ -23,21 +25,25 @@ class DateOfBirth:
     Year: str   
     Month: str
 
-@dataclass
 class Address:
-    CareOf:  str
-    PostBox:   str
-    AddressLine1: str
-    AddressLine2: str 
-    PostTown: str
-    County: str 
-    Country: str
-    PostCode: str
-    Premises: str
-    FullAddress: str = field(init=False)  # Excluded from __init__
-       
-    def __post_init__(self):
-        # Construct full address with non-empty fields
-        parts = [self.AddressLine1, self.AddressLine2, self.PostTown, self.County, self.PostCode, self.Country]
-        self.FullAddress = ", ".join(filter(None, parts))  # Remove empty values
+    care_of:  Optional[str] = Field(default=None)
+    post_box:   Optional[str] = Field(default=None)
+    address_line_1: Optional[str] = Field(default=None)
+    address_line_2: Optional[str] = Field(default=None)
+    post_town: Optional[str] = Field(default=None)
+    county: Optional[str] = Field(default=None)
+    country: Optional[str] = Field(default=None)
+    post_code: Optional[str] = Field(default=None)
+    premises: Optional[str] = Field(default=None)
 
+    def build_full_address(self) -> str:
+        parts = [
+            self.address_line_1, 
+            self.address_line_2, 
+            self.post_town, 
+            self.county, 
+            self.post_code, 
+            self.country
+            ]
+        return ", ".join(filter(None, parts))
+     
