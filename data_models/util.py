@@ -1,31 +1,27 @@
 from dataclasses import dataclass, field
 from sqlmodel import Field, Relationship, Session, SQLModel
 from typing import Optional
+from pydantic import computed_field
 
-
-
-@dataclass
 class Identification:
-    CountryRegistered: str
-    LegalAuthority: str
-    LegalForm: str
-    PlaceRegistered: str
-    RegistrationNumber: str
+    country_registered: Optional[str] = Field(default=None) 
+    legal_authority: Optional[str] = Field(default=None) 
+    legal_form: Optional[str] = Field(default=None) 
+    place_registered: Optional[str] = Field(default=None) 
+    registration_number: Optional[str] = Field(default=None) 
 
-@dataclass
 class Name:
-    FullName: str
-    Firstname: str
-    Middlename: str
-    Surname: str
-    Title: str
+    full_name: Optional[str] = Field(default=None) 
+    first_name: Optional[str] = Field(default=None) 
+    middle_name: Optional[str] = Field(default=None) 
+    sur_name: Optional[str] = Field(default=None) 
+    title: Optional[str] = Field(default=None) 
 
-@dataclass
 class DateOfBirth:
-    Year: str   
-    Month: str
+    year: Optional[str] = Field(default=None) 
+    month: Optional[str] = Field(default=None)
 
-class Address:
+class Address():
     care_of:  Optional[str] = Field(default=None)
     post_box:   Optional[str] = Field(default=None)
     address_line_1: Optional[str] = Field(default=None)
@@ -36,6 +32,8 @@ class Address:
     post_code: Optional[str] = Field(default=None)
     premises: Optional[str] = Field(default=None)
 
+    @computed_field
+    @property
     def build_full_address(self) -> str:
         parts = [
             self.address_line_1, 

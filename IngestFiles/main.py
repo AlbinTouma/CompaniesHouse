@@ -5,9 +5,11 @@ from sqlmodel import SQLModel, create_engine
 engine = create_engine("sqlite:///ukch.db")
 SQLModel.metadata.create_all(engine)
 
+ingestor = PscIngestor(engine=engine)
+ingestor.ingest_psc()
 
-ingestor = CompanyIngestor(engine=engine)
-ingestor.ingest_companies()
+#ingestor = CompanyIngestor(engine=engine)
+#ingestor.ingest_companies()
 
 
 #sqlite_db = SqliteClass()
