@@ -51,13 +51,12 @@ class CompanyIngestor:
 
                     )
                 
-                company.compute_full_address()
+                #company.compute_full_address()
                 
                 
                 company_objects.append(company)
 
                 if len(company_objects) >= 100:
-                    #database.execute_bulk_insert('insert_companies.sql', companies)
                     self.bulk_insert(company_objects)
                     company_objects = []
             
