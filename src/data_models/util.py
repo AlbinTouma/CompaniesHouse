@@ -21,7 +21,7 @@ class DateOfBirth:
     year: Optional[str] = Field(default=None) 
     month: Optional[str] = Field(default=None)
 
-class Address():
+class Address:
     care_of:  Optional[str] = Field(default=None)
     post_box:   Optional[str] = Field(default=None)
     address_line_1: Optional[str] = Field(default=None)

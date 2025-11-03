@@ -8,12 +8,9 @@ from sqlalchemy import Column, JSON
 
 class PSC(SQLModel, Address, Identification, DateOfBirth,  table=True):
     id: int | None  = Field(default=None, primary_key=True)
-#    address: Optional[Address] = Field(default=None)
     etag: Optional[str] = Field(default=None) 
-#    identification: Optional["Identification"] = Field(default=None)
     kind: Optional[str] = Field(default=None) 
     name: Optional[str] = Field(default=None) 
-#    date_of_birth:  Optional["DateOfBirth"] = Field(default=None)
     nationality: Optional[str] = Field(default=None) 
     notified_on: Optional[str] = Field(default=None) 
     ceased_on: Optional[str] = Field(default=None) 
