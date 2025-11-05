@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from data_models.util import Address
-#from data_models.psc import PSC
+from src.models.util import Address
 from sqlmodel import Field, Relationship, Session, SQLModel
 from typing import Optional, List
 
@@ -78,8 +77,5 @@ class Company(SQLModel, Address, table=True):
     mortgages: List["Mortgages"] =  Relationship(back_populates="company")
     previous_names: List["PreviousName"] = Relationship(back_populates="company")
     industry: Optional[Industry] = Relationship(back_populates="company")
-    full_address: Optional[str] = Field(default=None)
     psc: Optional["PSC"] = Relationship(back_populates="company")
-    def compute_full_address(self):
-        self.full_address = super().build_full_address()
 

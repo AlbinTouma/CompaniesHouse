@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from data_models.util import Address, Identification, DateOfBirth
-from data_models.company import Company
+from src.models.util import Address, Identification, DateOfBirth
+from src.models.company import Company
 from sqlmodel import Field, Relationship, Session, SQLModel
 from typing import Optional, List
 from sqlalchemy import Column, JSON
@@ -21,18 +21,3 @@ class PSC(SQLModel, Address, Identification, DateOfBirth,  table=True):
     company: Optional["Company"] = Relationship(back_populates="psc")
 
 
-@dataclass
-class PSCClass:
-    CompanyNumber: str
-    Address: Address
-    Etag: str
-    Identification: Identification
-    Kind: str
-    Name: str
-    DateOfBirth:  DateOfBirth
-    Nationality: str
-    NotifiedOn: str
-    CeasedOn: str
-    CountryOfResidence: str
-    NaturesControl: list[str] = field(default_factory=list)
-    Links: dict[str, str] = field(default_factory=dict)

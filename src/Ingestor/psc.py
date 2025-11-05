@@ -1,9 +1,8 @@
 import json
 from dataclasses import dataclass, field, asdict
-import psycopg2
 from datetime import datetime
-from db.sqlite_db import *
-from data_models import Address, PSC, Identification, Name, DateOfBirth
+from src.models.util import Address,Identification, Name, DateOfBirth
+from src.models.psc import PSC
 from tqdm import tqdm
 from sqlmodel import Session, select
 
@@ -15,9 +14,19 @@ class PscIngestor:
     def convert_datetime(obj):
         return datetime.fromisoformat(obj.replace('Z', '+00:00'))
 
+    def parse_full_address(self, obj: dict):
+            if not obj:
+                return None
+
+            data = obj.get('data', {}).get('address')
+            order = ['address_line_1', 'address_line_2', 'premises', 'postal_code', 'locality', 'region','country'] 
+            data = {key: data[key] for key in order if key in data}
+            //here join ',' 
+
     def create_object(self, obj: dict) -> PSC:
         return PSC(
                 company_id=obj.get('company_number', ''),  # Default to empty string if 'company_number' is missing
+                full_address=self.parse_full_address(obj),
                 address_line_1=obj.get('data', {}).get('address', {}).get('address_line_1', ''),
                 address_line_2=obj.get('data', {}).get('address', {}).get('address_line_2', ''),
                 country=obj.get('data', {}).get('address', {}).get('country', ''),
@@ -39,11 +48,8 @@ class PscIngestor:
                 middle_name=obj.get('data', {}).get('name_elements', {}).get('middlename', ''),
                 surname=obj.get('data', {}).get('name_elements', {}).get('surname', ''),
                 title=obj.get('data', {}).get('name_elements', {}).get('title', ''),
-        
-
                 year=obj.get('data', {}).get('date_of_birth', {}).get('year'),
                 month=obj.get('data', {} ).get('date_of_birth', {}).get('month'),
-                
                 nationality=obj.get('data', {}).get('nationality'),
                 ceasedOn=None if obj.get('data', {}).get('ceased_on', '') == '' else self.convert_datetime(obj.get('data', {}).get('ceased_on', '')),
                 country_of_residence=obj.get('data', {}).get('country_of_residence'),

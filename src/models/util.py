@@ -31,17 +31,5 @@ class Address:
     country: Optional[str] = Field(default=None)
     post_code: Optional[str] = Field(default=None)
     premises: Optional[str] = Field(default=None)
+    full_address: Optional[str] = Field(default=None)
 
-    @computed_field
-    @property
-    def build_full_address(self) -> str:
-        parts = [
-            self.address_line_1, 
-            self.address_line_2, 
-            self.post_town, 
-            self.county, 
-            self.post_code, 
-            self.country
-            ]
-        return ", ".join(filter(None, parts))
-     

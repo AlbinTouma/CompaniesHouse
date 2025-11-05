@@ -1,9 +1,10 @@
 import pandas as pd
 import csv
 from dataclasses import asdict
-from data_models import Address, Company
+from src.models import Address, Company
 from tqdm import tqdm
 from sqlmodel import Session, select
+
 #CompanyName, CompanyNumber,
 # RegAddress.CareOf,RegAddress.POBox,RegAddress.AddressLine1, RegAddress.AddressLine2,RegAddress.PostTown,RegAddress.County,RegAddress.Country,RegAddress.PostCode,
 # CompanyCategory,CompanyStatus,CountryOfOrigin,DissolutionDate,
@@ -18,6 +19,8 @@ class CompanyIngestor:
     def __init__(self, engine):
         self.engine  = engine
 
+    
+
     def ingest_companies(self):
         with open('companies.csv', 'r') as file:
             total_rows = sum(1 for _ in file) - 1  # skip header
@@ -28,9 +31,17 @@ class CompanyIngestor:
             company_objects = []
 
             for _, item in enumerate(tqdm(csvReader, total=total_rows, desc="Ingesting companies")):
-              
+                full_address = ", ".join(filter(None, [
+                    item[4],
+                    item[5],
+                    item[6],
+                    item[9],
+                    item[3],
+                    item[2],
+                    item[8],
+                    item[7],
+                   ]))
                     
-                
                 company = Company(
                     name=item[0],
                     id=item[1],
@@ -39,6 +50,7 @@ class CompanyIngestor:
                     country_of_origin=item[12],
                     dissolution_date=item[13],
                     incorporation_date=item[14],
+                    full_address=full_address,
                     address_line_1=item[4],
                     address_line_2=item[5],
                     post_town=item[6],
@@ -50,9 +62,6 @@ class CompanyIngestor:
                     premises=None
 
                     )
-                
-                #company.compute_full_address()
-                
                 
                 company_objects.append(company)
 
