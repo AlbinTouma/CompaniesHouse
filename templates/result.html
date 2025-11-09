@@ -1,4 +1,20 @@
 <section>
-    <div id="ownership-data" type="application/json" data-bods='{{bods_json | tojson | safe}}'/></div>
-    <div id="graph-container"> </div>
+   
+    <table>
+        <caption>{{bods_json.company.name}}</caption>
+    {% for key, value in bods_json.company.items() %}
+        {% if value %}
+            <tr>
+                <th>{{key.replace('_', ' ').title() }}</th><td>{{value}}</td>
+            </tr>
+        {% endif %}             
+                        
+    {% endfor %}
+
+
+        
+    </table>
+   
+   <!------    <div id="ownership-data" type="application/json" data-bods='{{bods_json | tojson | safe}}'/></div> <div id="graph-container"> </div>
+--->
 </section>

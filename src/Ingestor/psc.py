@@ -15,13 +15,13 @@ class PscIngestor:
         return datetime.fromisoformat(obj.replace('Z', '+00:00'))
 
     def parse_full_address(self, obj: dict):
-            if not obj:
+            order = ['address_line_1', 'address_line_2', 'premises', 'postal_code', 'locality', 'region','country'] 
+            address = obj.get('data',{}).get('address')
+            if address is None:
                 return None
 
-            data = obj.get('data', {}).get('address')
-            order = ['address_line_1', 'address_line_2', 'premises', 'postal_code', 'locality', 'region','country'] 
-            data = {key: data[key] for key in order if key in data}
-            //here join ',' 
+            data = {key: address[key] for key in order if key in address}
+            return ', '.join(filter(None,[*data.values()]))
 
     def create_object(self, obj: dict) -> PSC:
         return PSC(
@@ -68,7 +68,7 @@ class PscIngestor:
                 psc = self.create_object(obj)
                 bulk.append(psc)    
                 
-                if len(bulk) >= 10:
+                if len(bulk) >= 100000:
                     try:
                         self.bulk_insert(bulk)
                         bulk = []

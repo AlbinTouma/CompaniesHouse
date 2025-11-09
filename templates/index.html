@@ -80,6 +80,7 @@
       border-radius: var(--radius);
       height:600px;
       display:flex;
+      flex-direction: column;
       align-items:center;
       justify-content:center;
       margin-top:75px;
@@ -139,6 +140,18 @@
         border: var(--border);
         border-radius:6px;
     }
+    
+    .hx-indicator{
+      opacity:0;
+      transition: opacity 200ms ease-in;
+      font-weight: bold;
+      margin-top: 10%;
+    }
+
+    .htmx-request .hx-indicator, .htmx-request {
+      opacity: 1;
+    }
+
   </style>
 <script src="https://unpkg.com/@openownership/bods-dagre/dist/bods-dagre.js"></script>
   <script type="module" src="/static/render_bods.js"></script>
@@ -156,14 +169,17 @@
     <div class="box">
       <strong>🌀</strong>
       <strong>Ownership & Company Investigator - KYBO</strong>
+      <div id="loading" class="hx-indicator">Loading ↻◌◌◌</div>
+
       <div id="result"></div>
     </div>
-       <form hx-post="/search/" hx-target="#result" hx-swap="innerHTML" method="post"> 
+       <form hx-post="/search/" hx-target="#result" hx-swap="innerHTML" method="post" hx-indicator="#loading"> 
       <div>
         <label for="query">Search OSINT:</label><br>
         <input type="text" name="query">
       </div>
     </form>
+
   </div>
     </main>
 </body>
