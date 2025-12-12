@@ -1,5 +1,5 @@
 from fastapi import APIRouter, FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.encoders import jsonable_encoder
 from src.config import engine, templates
@@ -12,26 +12,26 @@ router = APIRouter(
 )
 
 
-
 @router.post("/", response_class=HTMLResponse) 
 def get_item(request: Request, query: str = Form(...)):
     with Session(engine) as session:
         statement = select(Company).where(Company.name == query)
-        company = session.exec(statement).first()
-        if company is None:
+        row = session.exec(statement).first()
+        if row is None:
             return HTMLResponse(
                 content="""<p>NO data</p>""",
+                status_code=404
                 )
+        row: list = session.exec(select(PSC).where(PSC.company_id == row.id)).all()
+       
+        row = row[0]
+        print(row)
+        print(f"Found data for query {row.model_dump()}")
         
-
-        
-        result = {
-                "company": company.model_dump(),
-                "psc": company.psc.model_dump()
-                }
+       
     return templates.TemplateResponse(
         "result.html", 
-        {"request": request, "bods_json": result}
+        {"request": request, "bods_json": jsonable_encoder(row.model_dump())}
         )
 
 

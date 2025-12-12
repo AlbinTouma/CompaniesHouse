@@ -78,4 +78,3 @@ class CompanyIngestor:
             session.add_all(companies)
             session.commit()
         
-        print('JOB DONE')
