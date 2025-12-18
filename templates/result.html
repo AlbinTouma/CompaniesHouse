@@ -2,7 +2,8 @@
 <section>
  <script>
         console.log("Received data")
-        let data = "{{bods_json | tojson | safe}}";
+        let data = {{bods_json | tojson | safe}};
+        console.log("Parsing")
         console.log(data);
 </script>
 

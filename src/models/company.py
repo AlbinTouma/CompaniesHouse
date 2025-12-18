@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from src.models.util import Address
+from src.models.psc import PSC
 from sqlmodel import Field, Relationship, Session, SQLModel
 from typing import Optional, List
 
@@ -15,7 +16,7 @@ class Accounts(SQLModel, table=True):
     returns_next_due_date: str | None
     returns_last_madeup_date: str | None
     company_id: str | None = Field(default=None, foreign_key="company.id")
-    company: Optional["Company"] = Relationship(back_populates="accounts")
+    company: Optional["CompanySQL"] = Relationship(back_populates="accounts")
 
 class Mortgages(SQLModel, table=True):
     id: int | None  = Field(default=None, primary_key=True)
@@ -24,7 +25,8 @@ class Mortgages(SQLModel, table=True):
     num_mort_part_satisfied: int | None
     num_mort_satisfied: int | None
     company_id: str | None = Field(default=None, foreign_key="company.id") 
-    company: Optional["Company"] = Relationship(back_populates="mortgages")
+    company: Optional["CompanySQL"] = Relationship(back_populates="mortgages")
+
    
 class Industry(SQLModel, table=True):
     id: int | None  = Field(default=None, primary_key=True)
@@ -36,7 +38,7 @@ class Industry(SQLModel, table=True):
     num_gen_partners: str | None
     num_lim_partners: str | None
     uri: str | None
-    company: Optional["Company"]  = Relationship(back_populates="industry")
+    company: Optional["CompanySQL"]  = Relationship(back_populates="industry")
 
 class PreviousName(SQLModel, table=True):
     id: int | None  = Field(default=None, primary_key=True)
@@ -63,9 +65,10 @@ class PreviousName(SQLModel, table=True):
     ConfStmtNextDueDate: str | None
     ConfStmtLastMadeUpDate: str | None
     company_id: str | None = Field(default=None, foreign_key="company.id")
-    company: Optional["Company"]  = Relationship(back_populates="previous_names")
+    company: Optional["CompanySQL"]  = Relationship(back_populates="previous_names")
 
-class Company(SQLModel, Address, table=True):
+class CompanySQL(Address, SQLModel, table=True):
+    __tablename__ = "company"
     id: str = Field(primary_key=True, index=True)
     name: str
     category: str | None
@@ -77,5 +80,5 @@ class Company(SQLModel, Address, table=True):
     mortgages: List["Mortgages"] =  Relationship(back_populates="company")
     previous_names: List["PreviousName"] = Relationship(back_populates="company")
     industry: Optional[Industry] = Relationship(back_populates="company")
-    psc: Optional["PSC"] = Relationship(back_populates="company")
+    psc: Optional[List["PSC"]] = Relationship(back_populates="company")
 
