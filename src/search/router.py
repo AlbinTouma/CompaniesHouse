@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from src.models.company import CompanySQL
 from src.schemas.company import CompanyRead, CompanyWithPSC
 from src.models.psc import PSC
-from src.schemas.psc import PscRead
+from src.schemas.psc import PscRead, PscWithCompany
 from src.config import logger
 from fastapi import HTTPException
 
@@ -21,7 +21,13 @@ router = APIRouter(
 
 @router.get("/company", response_model=CompanyRead)
 def get_company(request: Request,q: str) -> CompanyRead:
-    """Get company by name"""
+    """Get firmographics by company name.
+    
+    :param request: FastAPI Request object
+    :param q: Company name to search for
+    :return: CompanyRead
+    
+    """
 
     logger.info("Query is:", q)
     with Session(engine) as session:
@@ -32,9 +38,17 @@ def get_company(request: Request,q: str) -> CompanyRead:
 
         return company
 
+
+
 @router.get("/company-pscs", response_model=CompanyWithPSC)
 def get_company_pscs(request: Request,q: str) -> CompanyWithPSC:
-    """Get company by name including PSCs"""
+    """Get firmographics and a list of persons with significant control by company name
+    
+    :param request: FastAPI Request object
+    :param q: Company name to search for
+    :return: CompanyWithPSC
+    
+    """
     
     logger.info("Query is %s:", q)
     with Session(engine) as session:
@@ -46,19 +60,19 @@ def get_company_pscs(request: Request,q: str) -> CompanyWithPSC:
 
         logger.info("SQL Query: %s", sql_query)
         company: CompanySQL = session.exec(sql_query).one_or_none()
-        logger.info("Company fetched: %s", company)
-        pscs_in_db = session.exec(select(PSC).where(PSC.company_id == "08209948")).all()
-        print(f"DEBUG: Found {len(pscs_in_db)} PSCs directly in DB for this ID")
-        print(company.psc)
-        if company:
-            _ = company.psc
-            return company
         return company
-
 
 
 @router.get("/psc", response_model=PscRead)
 def get_psc_by_company_number(request: Request, company_number: int) -> PscRead:
+    """Get the first person with significant control by company number.
+
+    :param request: FastAPI Request object
+    :param company_number: Company number to search for
+    :return: PscRead
+    
+    """
+
     with Session(engine) as session:
         sql_query  = select(PSC).where(PSC.id == company_number)
         psc: PSC = session.exec(sql_query).first()
@@ -67,25 +81,13 @@ def get_psc_by_company_number(request: Request, company_number: int) -> PscRead:
 
         return psc
 
-
-"""
-@router.post("/", response_class=HTMLResponse) 
-def get_item(request: Request, query: str = Form(...)):
+@router.get("/psc-company", response_model=PscWithCompany)
+def get_psc_with_company(request: Request, company_number: int) -> PscWithCompany:
     with Session(engine) as session:
-        statement = select(Company).where(Company.name == query)
-        company = session.exec(statement).first()
-        if company is None:
-            return HTMLResponse(
-                content=<p>NO data</p>,
-                status_code=404
-                )
-        psc: list = session.exec(select(PSC).where(PSC.company_id == company.id)).all()
-        print(type(psc[0]))
-        row = {"company": company, "psc_list": psc}
-       
-    return templates.TemplateResponse(
-        "result.html", 
-        {"request": request, "bods_json": jsonable_encoder(row)}
-        )
+        sql_query  = select(PSC).where(PSC.id == company_number)
+        psc: PSC = session.exec(sql_query).first()
+        if psc is None:
+            return {"data": "Not found"}
 
-"""
+        return psc
+

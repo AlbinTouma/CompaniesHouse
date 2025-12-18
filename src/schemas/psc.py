@@ -57,3 +57,7 @@ class PscRead(BaseModel):
             except json.JSONDecodeError:
                 return v
         return v
+
+
+class PscWithCompany(PscRead):
+    company: Optional[List["CompanyRead"]] = None

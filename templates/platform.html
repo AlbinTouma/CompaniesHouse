@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OSINT for Ukraine</title>
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
+
+  <style>
+    :root{
+      --border: 1px solid rgba(15,23,42,0.06);
+      --shadow: 0 6px 18px rgba(2,6,23,0.08);
+      --radius: 8px;
+      --gap: 40px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background: #ffffff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    nav{
+      box-shadow: var(--shadow);
+      padding:12px 20px;
+      background: #ffffff;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .nav-title{
+      font-size:14px;
+      font-weight:500;
+      border: var(--border);
+      border-radius: var(--radius);
+      padding:6px 12px;
+      box-shadow: var(--shadow);
+      background:#fff;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .nav-title svg{
+      width:22px;
+      height:22px;
+    }
+
+    nav ul{
+      list-style:none;
+      display:flex;
+      gap:20px;
+      margin:0;
+      padding:0;
+      align-items:center;
+    }
+
+    nav a{
+      text-decoration:none;
+      color:inherit;
+      font-weight:600;
+      font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .container-center{
+      width:66%;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .box{
+      border: var(--border);
+      border-radius: var(--radius);
+      height:600px;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      justify-content:center;
+      margin-top:75px;
+      margin-bottom:var(--gap);
+      box-sizing:border-box;
+    }
+
+    form.search-form{
+      border: var(--border);
+      border-radius: var(--radius);
+      padding:20px;
+      box-sizing:border-box;
+      height:300px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:12px;
+      margin-bottom:200px;
+    }
+
+    label{ font-size:13px; }
+
+    input[type="text"]{
+      width:100%;
+      padding:10px 12px;
+      border: var(--border);
+      border-radius:6px;
+      outline:none;
+      box-sizing:border-box;
+      font-size:14px;
+    }
+
+    input[type="submit"]{
+      padding:10px 14px;
+      border-radius:6px;
+      border: var(--border);
+      background:transparent;
+      cursor:pointer;
+      font-weight:600;
+      align-self:flex-start;
+    }
+
+    @media (max-width:720px){
+      .container-center{ width:90%; }
+    }
+
+    main {
+        display: grid;
+        grid-template-columns: 0.2fr 1fr;
+    }
+
+    aside {
+        padding: 2rem;
+        grid-column: 1;
+        width: 250px;
+        height: 100vh;
+        border: var(--border);
+        border-radius:6px;
+    }
+    
+    .hx-indicator{
+      opacity:0;
+      transition: opacity 200ms ease-in;
+      font-weight: bold;
+      margin-top: 10%;
+    }
+
+    .htmx-request .hx-indicator, .htmx-request {
+      opacity: 1;
+    }
+
+  </style>
+<script src="https://unpkg.com/@openownership/bods-dagre/dist/bods-dagre.js"></script>
+  <script type="module" src="/static/render_bods.js"></script>
+</head>
+<body>
+    <main>
+ <aside>
+        <h1>🌀 Kybo</h1>
+        <dl>Profile</dl>
+        <dl>Chats</dl>
+    </aside>
+
+
+  <div class="container-center">
+    <div class="box">
+      <strong>🌀</strong>
+      <strong>Ownership & Company Investigator - KYBO</strong>
+      <div id="loading" class="hx-indicator">Loading ↻◌◌◌</div>
+
+      <div id="result"></div>
+    </div>
+       <form hx-post="/search/" hx-target="#result" hx-swap="innerHTML" method="post" hx-indicator="#loading"> 
+      <div>
+        <label for="query">Search OSINT:</label><br>
+        <input type="text" name="query">
+      </div>
+    </form>
+
+  </div>
+    </main>
+</body>
+</html>
+
+
+
+
