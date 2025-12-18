@@ -18,6 +18,7 @@ class PscRead(BaseModel):
     address: AddressRead
     identification: Identification
     date_of_birth: DateOfBirth
+    
     kind: str | None = None 
     name: str | None = None
     nationality: str | None = None 

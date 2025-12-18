@@ -8,7 +8,7 @@ from typing import Optional, List
 class Identification(BaseModel):
     model_config = ConfigDict(from_attributes=True) # Must be here
 
-    country_registered: str = None 
+    country_registered: str = None
     legal_authority: str = None 
     legal_form: str = None 
     place_registered: str = None  

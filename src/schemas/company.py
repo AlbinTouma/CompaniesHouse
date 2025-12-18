@@ -6,6 +6,7 @@ from src.schemas.address import AddressRead
 from src.schemas.psc import PscRead
 from pydantic import model_validator
 from pydantic import ConfigDict
+from pydantic.fields import Field, AliasChoices
 
 class Accounts(BaseModel):
     id: int | None 
@@ -68,8 +69,7 @@ class CompanyRead(BaseModel):
     country_origin: str | None
     dissolution_date: str | None
     incorporation_date: str | None
-    address: Optional[AddressRead] = None
-    psc: Optional[List[PscRead]] = []
+    address: Optional[AddressRead] = Field(None, validation_alias=AliasChoices("address", "."))
 
     @model_validator(mode="before")
     @classmethod
@@ -79,9 +79,7 @@ class CompanyRead(BaseModel):
             # 1. Convert the flat SQL object to a dict
             # (SQLModel objects have a built-in .model_dump())
             payload = data.model_dump()
-            if hasattr(data, "psc"):
-                payload["psc"] = data.psc
-            
+           
             # 2. Assign the same flat payload to the 'Address' key.
             # AddressRead (with from_attributes=True) will pick only
             # the address-specific fields it needs from this flat dict.
@@ -89,3 +87,25 @@ class CompanyRead(BaseModel):
             return payload
             
         return data
+
+class CompanyWithPSC(CompanyRead):
+    model_config = ConfigDict(from_attributes=True)
+    psc: List[PscRead]
+    
+    @model_validator(mode="before")
+    @classmethod
+    def wrap_psc_fields(cls, data: Any) -> Any:
+        # If we are validating an ORM object (like CompanySQL)
+        if not isinstance(data, dict):
+            # 1. Convert the flat SQL object to a dict
+            # (SQLModel objects have a built-in .model_dump())
+            payload = data.model_dump()
+           
+            # 2. Assign the same flat payload to the 'psc' key.
+            # PscRead (with from_attributes=True) will pick only
+            # the psc-specific fields it needs from this flat dict.
+            payload["psc"] = data.psc
+            return payload
+            
+        return data
+

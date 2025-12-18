@@ -6,10 +6,12 @@ from src.config import engine, templates
 from sqlmodel import Session, select, create_engine
 from sqlalchemy.orm import selectinload
 from src.models.company import CompanySQL
-from src.schemas.company import CompanyRead
+from src.schemas.company import CompanyRead, CompanyWithPSC
 from src.models.psc import PSC
 from src.schemas.psc import PscRead
 from src.config import logger
+from fastapi import HTTPException
+
 
 router = APIRouter(
     prefix='/search'
@@ -19,17 +21,21 @@ router = APIRouter(
 
 @router.get("/company", response_model=CompanyRead)
 def get_company(request: Request,q: str) -> CompanyRead:
+    """Get company by name"""
+
     logger.info("Query is:", q)
     with Session(engine) as session:
         sql_query  = select(CompanySQL).where(CompanySQL.name == q)
         company: CompanySQL = session.exec(sql_query).first()
         if company is None:
-            return {"data": "Not found"}
+            raise HTTPException(status_code=404, detail="Company not found")
 
         return company
 
-@router.get("/company-pscs", response_model=CompanyRead)
-def get_company_pscs(request: Request,q: str) -> CompanyRead:
+@router.get("/company-pscs", response_model=CompanyWithPSC)
+def get_company_pscs(request: Request,q: str) -> CompanyWithPSC:
+    """Get company by name including PSCs"""
+    
     logger.info("Query is %s:", q)
     with Session(engine) as session:
         sql_query  =  (
