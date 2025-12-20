@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>UK Companies House API</title>
+    <title>KYBO</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; }
         h1 { color: #333; }
@@ -9,7 +9,8 @@
     </style>
 </head>
 <body>
-    <h1>UK Companies House Query API</h1>
+    <h1>KYBO</h1>
+    <h2>UK Companies House Query API</h2>
     <p>This API allows you to query UK Companies House data using SQLite. Available endpoints:</p>
     <ul>
         <li><b>/company?q=COMPANY_NAME</b> - Get company details by name.</li>
@@ -17,7 +18,13 @@
         <li><b>/psc?company_number=12345</b> - Get PSC details by company number.</li>
         <li><b>/psc-company?company_number=12345</b> - Get PSC and company mapping.</li>
     </ul>
-    <p>Future version: Convert these responses to BODS statements for open data integration.</p>
+    <p>Future version: 
+        <ul>
+            <li>Convert these responses to BODS statements for open data integration</li>
+            <li>Ingest companies and PSCs from Companies House bulk files</li>
+        </ul>
+    </p>
+    
     <p>Check out docs for API documentation</p>
     <a href="/docs">API Docs</a>
 </body>

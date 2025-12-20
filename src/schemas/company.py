@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional, List, Any
+from typing import Optional, List, Any, TYPE_CHECKING
 from src.schemas.address import AddressRead
-from src.schemas.psc import PscRead
 from pydantic import model_validator
 from pydantic import ConfigDict
 from pydantic.fields import Field, AliasChoices
+
+if TYPE_CHECKING:
+    from src.schemas.psc import PscRead
 
 class Accounts(BaseModel):
     id: int | None 
@@ -90,7 +92,7 @@ class CompanyRead(BaseModel):
 
 class CompanyWithPSC(CompanyRead):
     model_config = ConfigDict(from_attributes=True)
-    psc: List[PscRead]
+    psc: List["PscRead"]
     
     @model_validator(mode="before")
     @classmethod

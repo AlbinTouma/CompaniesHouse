@@ -64,7 +64,7 @@ def get_company_pscs(request: Request,q: str) -> CompanyWithPSC:
 
 
 @router.get("/psc", response_model=PscRead)
-def get_psc_by_company_number(request: Request, company_number: int) -> PscRead:
+def get_psc_by_company_number(request: Request, company_number: str) -> PscRead:
     """Get the first person with significant control by company number.
 
     :param request: FastAPI Request object
@@ -74,18 +74,25 @@ def get_psc_by_company_number(request: Request, company_number: int) -> PscRead:
     """
 
     with Session(engine) as session:
-        sql_query  = select(PSC).where(PSC.id == company_number)
+        sql_query  = select(PSC).where(PSC.company_id == company_number)
         psc: PSC = session.exec(sql_query).first()
+
         if psc is None:
             return {"data": "Not found"}
 
         return psc
 
 @router.get("/psc-company", response_model=PscWithCompany)
-def get_psc_with_company(request: Request, company_number: int) -> PscWithCompany:
+def get_psc_with_company(request: Request, company_number: str) -> PscWithCompany:
     with Session(engine) as session:
-        sql_query  = select(PSC).where(PSC.id == company_number)
-        psc: PSC = session.exec(sql_query).first()
+        sql_query  = (
+            select(PSC)
+            .where(PSC.company_id == company_number)
+            .options(selectinload(PSC.company))
+        )
+        psc: PscWithCompany = session.scalar(sql_query)
+        print(psc)
+        print(psc.company)
         if psc is None:
             return {"data": "Not found"}
 

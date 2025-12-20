@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
 from pydantic import JsonValue, BaseModel, BeforeValidator, ConfigDict, model_validator, Json, field_serializer, field_validator
-from typing import Optional, List, Any, Dict, Annotated
+from typing import Optional, List, Any, Dict, Annotated, TYPE_CHECKING
 from src.schemas.utils import Identification, DateOfBirth
 from src.schemas.address import AddressRead
 import json
+
+if TYPE_CHECKING:
+    from src.schemas.company import CompanyRead
 
 def parse_json_string(v):
     if isinstance(v, str):
@@ -58,6 +61,8 @@ class PscRead(BaseModel):
                 return v
         return v
 
-
 class PscWithCompany(PscRead):
-    company: Optional[List["CompanyRead"]] = None
+    model_config = ConfigDict(from_attributes=True)
+    company: Optional[List["CompanyRead"]] = []
+
+
