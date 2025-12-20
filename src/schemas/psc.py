@@ -8,19 +8,15 @@ import json
 if TYPE_CHECKING:
     from src.schemas.company import CompanyRead
 
-def parse_json_string(v):
-    if isinstance(v, str):
-        return json.loads(v)
-    return v
-
 class PscRead(BaseModel):
+    person_id: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
-    id: int | None
-    etag: Optional[str] 
-    address: AddressRead
-    identification: Identification
-    date_of_birth: DateOfBirth
+    company_number: str | None =None
+    etag: str | None = None 
+    address: AddressRead | None = None
+    identification: Identification | None = None
+    date_of_birth: DateOfBirth | None = None
     
     kind: str | None = None 
     name: str | None = None
@@ -28,9 +24,10 @@ class PscRead(BaseModel):
     notified_on: str | None = None 
     ceased_on: str | None = None 
     country_of_residence: str | None = None 
-    natures_control: List[str] | None = None
+    natures_of_control: List[str] | None = None
     links: Optional[dict[str, str]] = None
     company_id: str | None = None
+    notified_on: str | None = None
     
     @model_validator(mode="before")
     @classmethod

@@ -90,11 +90,14 @@ def get_psc_with_company(request: Request, company_number: str) -> PscWithCompan
             .where(PSC.company_id == company_number)
             .options(selectinload(PSC.company))
         )
-        psc: PscWithCompany = session.scalar(sql_query)
-        print(psc)
-        print(psc.company)
+        psc: PSC = session.scalar(sql_query)
+        psc = PscWithCompany.model_validate(psc)
+        print(type(psc))
+        print(psc.model_dump_json())
+
         if psc is None:
             return {"data": "Not found"}
 
         return psc
 
+    

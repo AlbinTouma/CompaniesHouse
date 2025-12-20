@@ -25,7 +25,6 @@ class Name(BaseModel):
 
 class DateOfBirth(BaseModel):
     model_config = ConfigDict(from_attributes=True) # Must be here
-
-    year: str | None  = None
-    month: str | None  = None
+    year: int | None  = None
+    month: int | None  = None
 
