@@ -18,7 +18,7 @@ class PSC(Address, Identification, DateOfBirth, SQLModel,table=True):
     notified_on: Optional[str] = Field(default=None) 
     ceased_on: Optional[str] = Field(default=None) 
     country_of_residence: Optional[str] = Field(default=None) 
-    natures_control: list[str] = Field(
+    natures_of_control: list[str] = Field(
         default_factory=list,
         sa_column=Column(JSON)
     )
