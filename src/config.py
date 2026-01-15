@@ -3,7 +3,8 @@ from sqlmodel import SQLModel, create_engine
 import logging
 import json
 
-engine = create_engine("sqlite:///ukch_2.db") #json_serializer=lambda obj: json.dumps(obj), json_deserializer=lambda s: json.loads(s))
+engine = create_engine("sqlite:///database/ukch_2.db") 
+
 SQLModel.metadata.create_all(engine)
 
 templates = Jinja2Templates(directory="templates")

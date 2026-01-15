@@ -28,4 +28,5 @@ class AddressRead(BaseModel):
             self.post_code,
             self.country
         ]
-        return ', '.join(filter(None, parts))
+        self.full_address = ', '.join(filter(None, parts))
+        return self

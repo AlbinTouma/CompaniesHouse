@@ -1,9 +1,9 @@
-ukch.db
 secretdb.py
+.vscode
 ukch.csv
 psc.txt
 .env/
-data.db
 *.db
 companies.csv
 psc.txt
+database/

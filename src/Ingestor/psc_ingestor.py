@@ -23,7 +23,13 @@ with open('psc.txt', 'r') as file:
             person_id = psc_dict.get('data', {}).get('links', {}).get('self', '').rsplit('/', 1)[-1]
             psc.person_id = person_id
             
-            psc_sql = PSC.model_validate(psc)            
+            try:
+                psc_sql = PSC.model_validate(psc)            
+            except:
+                print("Error data invalid")
+                print(line)
+                break
+
             pscsql_list.append(psc_sql)
 
             if len(pscsql_list) > 100:
@@ -31,7 +37,7 @@ with open('psc.txt', 'r') as file:
                     session.merge(psc)
                 session.commit()
                 pscsql_list.clear()
-                break
+                
         
         if pscsql_list:
             for psc in pscsql_list:

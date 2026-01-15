@@ -24,7 +24,7 @@ class PscRead(BaseModel):
     notified_on: str | None = None 
     ceased_on: str | None = None 
     country_of_residence: str | None = None 
-    natures_of_control: List[str] | None = None
+    natures_of_control: List[str] | None = []
     links: Optional[dict[str, str]] = None
     company_id: str | None = None
     notified_on: str | None = None

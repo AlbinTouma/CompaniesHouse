@@ -1,9 +1,8 @@
-from dataclasses import dataclass, field
-from datetime import datetime
 from src.models.util import Address
 from src.models.psc import PSC
 from sqlmodel import Field, Relationship, Session, SQLModel
 from typing import Optional, List
+from pydantic import AliasPath, Field as pydanticField
 
 
 class Accounts(SQLModel, table=True):
@@ -81,4 +80,5 @@ class CompanySQL(Address, SQLModel, table=True):
     previous_names: List["PreviousName"] = Relationship(back_populates="company")
     industry: Optional[Industry] = Relationship(back_populates="company")
     psc: Optional[List["PSC"]] = Relationship(back_populates="company")
+
 

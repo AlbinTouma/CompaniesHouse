@@ -71,23 +71,19 @@ class CompanyRead(BaseModel):
     country_origin: str | None
     dissolution_date: str | None
     incorporation_date: str | None
-    address: Optional[AddressRead] = Field(None, validation_alias=AliasChoices("address", "."))
+    address: Optional[AddressRead]| None #Field(None) #, validation_alias=AliasChoices("address", "."))
 
     @model_validator(mode="before")
     @classmethod
     def wrap_address_fields(cls, data: Any) -> Any:
-        # If we are validating an ORM object (like CompanySQL)
         if not isinstance(data, dict):
-            # 1. Convert the flat SQL object to a dict
-            # (SQLModel objects have a built-in .model_dump())
             payload = data.model_dump()
-           
-            # 2. Assign the same flat payload to the 'Address' key.
-            # AddressRead (with from_attributes=True) will pick only
-            # the address-specific fields it needs from this flat dict.
-            payload["address"] = payload
+            payload['address'] = payload
             return payload
-            
+
+        if "address" not in data or data["address"] is None:
+            data["address"] = data
+
         return data
 
 class CompanyWithPSC(CompanyRead):
