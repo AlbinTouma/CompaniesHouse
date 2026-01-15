@@ -44,6 +44,38 @@ def search_company(
         return CompanyRead.model_validate(result)
 
 
+@router.get("/psc", response_model=PscRead | PscWithCompany)
+def search_psc(
+        request: Request,
+        name: str = None, 
+        person_id: str = None,
+        include_company: bool = None
+        ):
+    with Session(engine) as session:
+        statement = select(PSC)
+
+        if person_id:
+            statement = statement.where(PSC.person_id == person_id)
+        elif name:
+            statement = statement.where(PSC.name == name)
+        else:
+            raise HTTPException(status_code=400, detail="Must provide either person_id or name of psc")
+
+        result = session.exec(statement).first()
+        if not result:
+            raise HTTPException(status_code=404, detail="Company not found")
+
+        if include_company:
+            return PscWithCompany.model_validate(result)
+
+        return PscRead.model_validate(result)
+
+
+
+
+
+
+
 @router.get("/psc", response_model=PscRead)
 def get_psc_by_company_number(request: Request, company_number: str) -> PscRead:
     """Get the first person with significant control by company number.

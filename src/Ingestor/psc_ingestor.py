@@ -17,7 +17,7 @@ with open('psc.txt', 'r') as file:
 
             psc_dict = json.loads(line)
             psc = PscRead.model_validate(psc_dict['data'])
-            psc.company_number = psc_dict['company_number']
+            psc.company_id = psc_dict['company_number']
 
             # Create person id from the links url.
             person_id = psc_dict.get('data', {}).get('links', {}).get('self', '').rsplit('/', 1)[-1]

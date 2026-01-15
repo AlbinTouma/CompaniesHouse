@@ -9,15 +9,13 @@ if TYPE_CHECKING:
     from src.schemas.company import CompanyRead
 
 class PscRead(BaseModel):
-    person_id: str | None = None
     model_config = ConfigDict(from_attributes=True)
-
+    person_id: str | None = None
     company_number: str | None =None
     etag: str | None = None 
     address: AddressRead | None = None
     identification: Identification | None = None
     date_of_birth: DateOfBirth | None = None
-    
     kind: str | None = None 
     name: str | None = None
     nationality: str | None = None 

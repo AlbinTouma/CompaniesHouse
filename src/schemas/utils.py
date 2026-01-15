@@ -7,12 +7,11 @@ from typing import Optional, List
 
 class Identification(BaseModel):
     model_config = ConfigDict(from_attributes=True) # Must be here
-
-    country_registered: str = None
-    legal_authority: str = None 
-    legal_form: str = None 
-    place_registered: str = None  
-    registration_number: str = None 
+    country_registered: str | None = None
+    legal_authority: str | None = None 
+    legal_form: str | None = None 
+    place_registered: str | None = None  
+    registration_number: str | None = None 
 
 class Name(BaseModel):
     model_config = ConfigDict(from_attributes=True) # Must be here

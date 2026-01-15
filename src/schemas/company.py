@@ -89,7 +89,7 @@ class CompanyRead(BaseModel):
 class CompanyWithPSC(CompanyRead):
     model_config = ConfigDict(from_attributes=True)
     psc: List["PscRead"]
-    
+
     @model_validator(mode="before")
     @classmethod
     def wrap_psc_fields(cls, data: Any) -> Any:
@@ -106,4 +106,3 @@ class CompanyWithPSC(CompanyRead):
             return payload
             
         return data
-
