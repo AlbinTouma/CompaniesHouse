@@ -18,69 +18,30 @@ router = APIRouter(
 )
 
 
-
-@router.get("/company_name/{q}", response_model=CompanyRead)
-def get_company(request: Request,q: str) -> CompanyRead:
-    """Get firmographics by company name.
-    
-    :param request: FastAPI Request object
-    :param q: Company name to search for
-    :return: CompanyRead
-    
-    """
-
-    logger.info("Query is:", q)
+@router.get("/company", response_model=CompanyRead | CompanyWithPSC)
+def search_company(
+        request: Request,
+        company_name: str = None, 
+        company_id: str = None,
+        include_psc: bool = None
+        ):
     with Session(engine) as session:
-        sql_query  = select(CompanySQL).where(CompanySQL.name == q)
-        company: CompanySQL = session.exec(sql_query).first()
-        if company is None:
+        statement = select(CompanySQL)
+
+        if company_id:
+            statement = statement.where(CompanySQL.id == company_id)
+        elif company_name:
+            statement = statement.where(CompanySQL.name == company_name)
+        else:
+            raise HTTPException(status_code=400, detail="Must provide either company_id or company_name")
+
+        result = session.exec(statement).first()
+        if not result:
             raise HTTPException(status_code=404, detail="Company not found")
 
-        company = CompanyRead.model_validate(company.model_dump())
-
-        return company
-
-
-@router.get("/company_id/{company_id}", response_model=CompanyRead)
-def get_company_by_id(request: Request, company_id: str) -> CompanyRead:
-    """Get firmographics by company name.
-    :param request: FastAPI Request object
-    :param company_id: Company id to search for
-    :return: CompanyRead
-    
-    """
-    logger.info(f"QUERYING -> {company_id}")
-    with Session(engine) as session:
-        sql_query  = select(CompanySQL).where(CompanySQL.id == company_id)
-        company: CompanySQL = session.exec(sql_query).first()
-        logger.info(type(company))
-        logger.info(company.model_dump())
-        companyRead = CompanyRead.model_validate(company.model_dump())
-        return companyRead
-
-
-@router.get("/company_full/{company_name}", response_model=CompanyWithPSC)
-def get_company_pscs(request: Request,company_name: str) -> CompanyWithPSC:
-    """Get firmographics and a list of persons with significant control by company name
-    
-    :param request: FastAPI Request object
-    :param q: Company name to search for
-    :return: CompanyWithPSC
-    
-    """
-    
-    logger.info("Query is %s:", q)
-    with Session(engine) as session:
-        sql_query  =  (
-            select(CompanySQL)
-            .where(CompanySQL.name == comppany_name)
-            .options(selectinload(CompanySQL.psc))
-        )
-
-        logger.info("SQL Query: %s", sql_query)
-        company: CompanySQL = session.exec(sql_query).one_or_none()
-        companyWithPSC = CompanyWithPSC.model_validate(company)
-        return companyWithPSC
+        if include_psc:
+            return CompanyWithPSC.model_validate(result)
+        return CompanyRead.model_validate(result)
 
 
 @router.get("/psc", response_model=PscRead)
