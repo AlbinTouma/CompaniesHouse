@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 class PscRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     person_id: str | None = None
-    company_number: str | None =None
     etag: str | None = None 
     address: AddressRead | None = None
     identification: Identification | None = None
@@ -29,19 +28,17 @@ class PscRead(BaseModel):
     
     @model_validator(mode="before")
     @classmethod
-    def wrap_address_fields(cls, data: Any) -> Any:
-            # If we are validating an ORM object (like CompanySQL)
-            if not isinstance(data, dict):
-                # 1. Convert the flat SQL object to a dict
-                # (SQLModel objects have a built-in .model_dump())
-                payload = data.model_dump()
-                
-                # 2. Assign the same flat payload to the 'Address' key.
-                # AddressRead (with from_attributes=True) will pick only
-                # the address-specific fields it needs from this flat dict.
-                payload["address"] = payload
-                payload["date_of_birth"] = payload
-                payload["identification"] = payload
+    def reshape_flat_orm_to_nested(cls, orm_data: Any) -> Any:
+            if not isinstance(orm_data, dict):
+                payload = orm_data.model_dump()
+
+                if hasattr(orm_data, 'company'):
+                    payload['company'] = orm_data.company
+
+                wrapped_fields = ['address', 'date_of_birth', 'identification']
+                for f in wrapped_fields:
+                    payload[f] = payload 
+
                 return payload
                 
             return data
@@ -58,6 +55,5 @@ class PscRead(BaseModel):
 
 class PscWithCompany(PscRead):
     model_config = ConfigDict(from_attributes=True)
-    company: Optional[List["CompanyRead"]] = []
-
+    company: Optional["CompanyRead"] = None
 

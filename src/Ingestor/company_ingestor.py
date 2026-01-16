@@ -5,15 +5,20 @@ from src.models.company import CompanySQL
 import json
 from sqlmodel import Session
 from src.config import engine
-    
+from tqdm import tqdm
+
+print("RUNNING PSC INGESTOR")
 BATCH = 100
 
 with open('companies.csv', 'r') as file:
+    total_rows = sum(1 for _ in file)
+    file.seek(0)  # reset to start
     csvReader = csv.reader(file, quotechar='"', delimiter=',', skipinitialspace=True)
+
     next(csvReader)
     with Session(engine) as session:
         companies_list = []
-        for item in csvReader:
+        for item in tqdm(csvReader, total=total_rows, desc="Ingesting companies"):
             address=AddressRead(
                     address_line_1=item[4],
                     address_line_2=item[5],

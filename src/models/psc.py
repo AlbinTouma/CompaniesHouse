@@ -28,6 +28,6 @@ class PSC(Address, Identification, DateOfBirth, SQLModel,table=True):
         sa_column=Column(JSON)
     )
     company_id: str | None = Field(default=None, foreign_key="company.id")
-    company: Optional[List["CompanySQL"]] = Relationship(back_populates="psc")
+    company: Optional["CompanySQL"] = Relationship(back_populates="psc")
 
 

@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.encoders import jsonable_encoder
 from src.config import engine, templates
 from sqlmodel import Session, select, create_engine
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from src.models.company import CompanySQL
 from src.schemas.company import CompanyRead, CompanyWithPSC
 from src.models.psc import PSC
@@ -44,7 +44,7 @@ def search_company(
         return CompanyRead.model_validate(result)
 
 
-@router.get("/psc", response_model=PscRead | PscWithCompany)
+@router.get("/psc", response_model= PscWithCompany | PscRead)
 def search_psc(
         request: Request,
         name: str = None, 
@@ -52,7 +52,7 @@ def search_psc(
         include_company: bool = None
         ):
     with Session(engine) as session:
-        statement = select(PSC)
+        statement = select(PSC).options(joinedload(PSC.company))
 
         if person_id:
             statement = statement.where(PSC.person_id == person_id)
@@ -66,7 +66,9 @@ def search_psc(
             raise HTTPException(status_code=404, detail="Company not found")
 
         if include_company:
-            return PscWithCompany.model_validate(result)
+            resultPsc = PscWithCompany.model_validate(result)
+            logger.info(resultPsc)
+            return resultPsc 
 
         return PscRead.model_validate(result)
 
@@ -76,41 +78,4 @@ def search_psc(
 
 
 
-@router.get("/psc", response_model=PscRead)
-def get_psc_by_company_number(request: Request, company_number: str) -> PscRead:
-    """Get the first person with significant control by company number.
-
-    :param request: FastAPI Request object
-    :param company_number: Company number to search for
-    :return: PscRead
-    
-    """
-
-    with Session(engine) as session:
-        sql_query  = select(PSC).where(PSC.company_id == company_number)
-        psc: PSC = session.exec(sql_query).first()
-
-        if psc is None:
-            return {"data": "Not found"}
-
-        return psc
-
-@router.get("/psc-company", response_model=PscWithCompany)
-def get_psc_with_company(request: Request, company_number: str) -> PscWithCompany:
-    with Session(engine) as session:
-        sql_query  = (
-            select(PSC)
-            .where(PSC.company_id == company_number)
-            .options(selectinload(PSC.company))
-        )
-        psc: PSC = session.scalar(sql_query)
-        psc = PscWithCompany.model_validate(psc)
-        print(type(psc))
-        print(psc.model_dump_json())
-
-        if psc is None:
-            return {"data": "Not found"}
-
-        return psc
-
-    
+  
