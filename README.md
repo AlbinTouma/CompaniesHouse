@@ -14,7 +14,7 @@ The ingestor creates a sqlite database inside the database folder.
 KYBO has two endpoints: companies and psc. 
 
 - The companies endpoint returns either company data or company data with a list of persons with significant control over the company.
-- The psc endpoint lets returns either information about the person of significant control or information about the person of significant control and firmographic data of the company where the person has control.
+- The psc endpoint returns either information about the person of significant control or information about the person of significant control and firmographic data of the company where the person has control.
 
 ## Future ideas
 
