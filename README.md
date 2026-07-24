@@ -1,4 +1,6 @@
 # Know Your Business Owners API
+[![Subscribe to newsletter](https://img.shields.io/badge/📧_Join_Now,_Subscribe_Today-blue?)](https://albin-touma.kit.com)
+
 
 KYBO is a Restful API for querying persons of significant control and companies in the UK company register, Companies House.
 
